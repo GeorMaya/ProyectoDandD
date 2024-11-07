@@ -43,34 +43,45 @@ public:
     }
 
     bool loadCSV() {
-        std::ifstream file(CSV);
-        if (!file.is_open()) {
-            return false;
-        }
-
-        std::string line;
-        getline(file, line);
-
-        while (getline(file, line)) {
-            std::stringstream ss(line);
-            std::string name, type, size, align;
-            T cr, ac, hp;
-
-            getline(ss, name, ',');
-            ss >> cr; ss.ignore();
-            getline(ss, type, ',');
-            getline(ss, size, ',');
-            ss >> ac; ss.ignore();
-            ss >> hp; ss.ignore();
-            getline(ss, align, ',');
-
-            Monstruo<T> monstruo(name, cr, type, size, ac, hp, align);
-            agregarMonstruo(monstruo);
-        }
-
-        file.close();
-        return true;
+    std::ifstream file(CSV);
+    if (!file.is_open()) {
+        std::cerr << "Error al abrir el archivo CSV: " << CSV << std::endl;
+        return false;
     }
+
+    std::string line;
+    getline(file, line); // Salta la primera línea (cabecera)
+
+    while (getline(file, line)) {
+        std::stringstream ss(line);
+        std::string name, type, size, align;
+        std::string crStr, acStr, hpStr;  // Variables temporales para almacenar los valores como cadenas
+
+        // Lee cada campo separado por comas
+        getline(ss, name, ',');    // Nombre del monstruo
+        getline(ss, crStr, ',');   // CR (Challenge Rating)
+        getline(ss, type, ',');    // Tipo
+        getline(ss, size, ',');    // Tamaño
+        getline(ss, acStr, ',');   // AC (Armor Class)
+        getline(ss, hpStr, ',');   // HP (Hit Points)
+        getline(ss, align, ',');   // Alineación
+
+        // Convierte los valores de cr, ac y hp a tipo T
+        T cr = static_cast<T>(std::stod(crStr));
+        T ac = static_cast<T>(std::stod(acStr));
+        T hp = static_cast<T>(std::stod(hpStr));
+
+        // Crea el objeto Monstruo con los valores leídos
+        Monstruo<T> monstruo(name, cr, type, size, ac, hp, align);
+
+        // Agrega el monstruo al árbol
+        agregarMonstruo(monstruo);
+    }
+
+    file.close();
+    return true;
+}
+
 
     Monstruo<T>* getRandomMonstruo() {
         int numeroRandom = rand() % 762 + 1;
