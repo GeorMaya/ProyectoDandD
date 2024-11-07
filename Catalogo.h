@@ -59,12 +59,12 @@ public:
 
         // Lee cada campo separado por comas
         getline(ss, name, ',');     // Nombre del monstruo
-        ss >> cr; ss.ignore();      // CR (Challenge Rating)
+        getline(ss, cr, ',');      // CR (Challenge Rating)
         getline(ss, type, ',');     // Tipo
         getline(ss, size, ',');     // Tamaño
-        ss >> ac; ss.ignore();      // AC (Armor Class)
-        ss >> hp; ss.ignore();      // HP (Hit Points)
-        getline(ss, align, ',');    // Alineación
+        getline(ss, AC, ',');      // AC (Armor Class)
+        getline(ss, hp, ',');      // HP (Hit Points)
+        getline(ss, align);    // Alineación
 
         // Crea el objeto Monstruo con los valores leídos
         Monstruo<T> monstruo(name, cr, type, size, ac, hp, align);
