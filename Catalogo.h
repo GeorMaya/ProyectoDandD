@@ -62,7 +62,7 @@ public:
         getline(ss, cr, ',');      // CR (Challenge Rating)
         getline(ss, type, ',');     // Tipo
         getline(ss, size, ',');     // Tamaño
-        getline(ss, AC, ',');      // AC (Armor Class)
+        getline(ss, ac, ',');      // AC (Armor Class)
         getline(ss, hp, ',');      // HP (Hit Points)
         getline(ss, align);    // Alineación
 
