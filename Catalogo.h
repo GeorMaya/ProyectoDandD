@@ -43,39 +43,40 @@ public:
     }
 
     bool loadCSV() {
-    std::ifstream file(CSV);
-    if (!file.is_open()) {
-        std::cerr << "Error al abrir el archivo CSV: " << CSV << std::endl;
-        return false;
+        std::ifstream file(CSV);
+        if (!file.is_open()) {
+            std::cerr << "Error al abrir el archivo CSV: " << CSV << std::endl;
+            return false;
+        }
+
+        std::string line;
+        getline(file, line); // Salta la primera línea (cabecera)
+
+        while (getline(file, line)) {
+            std::stringstream ss(line);
+            std::string name, type, size, align;
+            double cr, ac, hp;  // Ahora estos son siempre `double`
+
+            // Lee cada campo separado por comas
+            getline(ss, name, ',');     // Nombre del monstruo
+            ss >> cr; ss.ignore();      // CR (Challenge Rating)
+            getline(ss, type, ',');     // Tipo
+            getline(ss, size, ',');     // Tamaño
+            ss >> ac; ss.ignore();      // AC (Armor Class)
+            ss >> hp; ss.ignore();      // HP (Hit Points)
+            getline(ss, align, ',');    // Alineación
+
+            // Crea el objeto Monstruo con los valores leídos
+            Monstruo<T> monstruo(name, cr, type, size, ac, hp, align);
+
+            // Agrega el monstruo al árbol
+            agregarMonstruo(monstruo);
+        }
+
+        file.close();
+        return true;
     }
 
-    std::string line;
-    getline(file, line); // Salta la primera línea (cabecera)
-
-    while (getline(file, line)) {
-        std::stringstream ss(line);
-        std::string name, type, size, align;
-        double cr, ac, hp;  // Ahora estos son siempre `double`
-
-        // Lee cada campo separado por comas
-        getline(ss, name, ',');     // Nombre del monstruo
-        getline(ss, cr, ',');      // CR (Challenge Rating)
-        getline(ss, type, ',');     // Tipo
-        getline(ss, size, ',');     // Tamaño
-        getline(ss, ac, ',');      // AC (Armor Class)
-        getline(ss, hp, ',');      // HP (Hit Points)
-        getline(ss, align);    // Alineación
-
-        // Crea el objeto Monstruo con los valores leídos
-        Monstruo<T> monstruo(name, cr, type, size, ac, hp, align);
-
-        // Agrega el monstruo al árbol
-        agregarMonstruo(monstruo);
-    }
-
-    file.close();
-    return true;
-}
 
 
 
