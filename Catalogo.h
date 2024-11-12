@@ -5,111 +5,134 @@
 #include <string>
 #include "Monstruo.h"
 
-
-#define CSV "monsters.csv"
 #define CSV "/Users/jorge/CLionProjects/Arboles/Nose/monsters.csv"
+#define TABLE_SIZE 100  // Tamaño de la tabla hash
 
 template <typename T>
 class Catalogo {
 public:
-    Catalogo() : root(nullptr) {}
+    Catalogo() {
+        // Inicializa la tabla con punteros nulos
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            hashTable[i] = nullptr;
+        }
+    }
 
     ~Catalogo() {
-        destruirArbol(root);
+        // Elimina todos los elementos en la tabla hash
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            Nodo* current = hashTable[i];
+            while (current != nullptr) {
+                Nodo* toDelete = current;
+                current = current->next;
+                delete toDelete;
+            }
+        }
     }
 
     bool agregarMonstruo(Monstruo<T>& nuevoMonstruo) {
-        Monstruo<T>* nuevoPtr = new(std::nothrow) Monstruo<T>(nuevoMonstruo);
-        if (nuevoPtr == nullptr) return false;
+        int index = hashFunction(nuevoMonstruo.getCr());
 
-        if (root == nullptr) {
-            root = nuevoPtr;
-            return true;
+        // Verificación de índice válido
+        if (index < 0 || index >= TABLE_SIZE) {
+            std::cerr << "Índice fuera de rango: " << index << std::endl;
+            return false;
+        } else {
+            std::cout << "Índice calculado para " << nuevoMonstruo.getNombre() << " es " << index << std::endl;
         }
 
-        Monstruo<T>* current = root;
-        Monstruo<T>* padre = nullptr;
+        // Crea un nuevo nodo para almacenar el monstruo
+        Nodo* newNode = new Nodo;
+        newNode->monstruo = nuevoMonstruo;
+        newNode->next = nullptr;
 
-        while (current != nullptr) {
-            padre = current;
-            if(nuevoPtr->getCr() < current->getCr()) current = current->left;
-            else current = current->right;
+        // Inserta en la tabla hash
+        if (hashTable[index] == nullptr) {
+            hashTable[index] = newNode;
+        } else {
+            Nodo* current = hashTable[index];
+            while (current->next != nullptr) {
+                current = current->next;
+            }
+            current->next = newNode;
         }
-
-        if(nuevoPtr->getCr() < padre->getCr()) padre->left = nuevoPtr;
-        else padre->right = nuevoPtr;
-
         return true;
     }
 
+
     bool loadCSV() {
-    std::ifstream file(CSV);
-    if (!file.is_open()) {
-        std::cerr << "Error al abrir el archivo CSV: " << CSV << std::endl;
-        return false;
+        std::ifstream file(CSV);
+        if (!file.is_open()) {
+            std::cerr << "Error al abrir el archivo CSV: " << CSV << std::endl;
+            return false;
+        }
+
+        std::string line;
+        getline(file, line); // Salta la primera línea (cabecera)
+
+        while (getline(file, line)) {
+            std::stringstream ss(line);
+            std::string name, type, size, align;
+            double cr, ac, hp;
+
+            // Lee cada campo separado por comas
+            getline(ss, name, ',');
+            ss >> cr; ss.ignore();
+            getline(ss, type, ',');
+            getline(ss, size, ',');
+            ss >> ac; ss.ignore();
+            ss >> hp; ss.ignore();
+            getline(ss, align, ',');
+
+            // Crea el objeto Monstruo con los valores leídos
+            Monstruo<T> monstruo(name, cr, type, size, ac, hp, align);
+
+            // Agrega el monstruo a la tabla hash
+            agregarMonstruo(monstruo);
+        }
+
+        file.close();
+        return true;
     }
-
-    std::string line;
-    getline(file, line); // Salta la primera línea (cabecera)
-
-    while (getline(file, line)) {
-        std::stringstream ss(line);
-        std::string name, type, size, align;
-        double cr, ac, hp;  // Ahora estos son siempre `double`
-
-        // Lee cada campo separado por comas
-        getline(ss, name, ',');     // Nombre del monstruo
-        getline(ss, cr, ',');      // CR (Challenge Rating)
-        getline(ss, type, ',');     // Tipo
-        getline(ss, size, ',');     // Tamaño
-        getline(ss, ac, ',');      // AC (Armor Class)
-        getline(ss, hp, ',');      // HP (Hit Points)
-        getline(ss, align);    // Alineación
-
-        // Crea el objeto Monstruo con los valores leídos
-        Monstruo<T> monstruo(name, cr, type, size, ac, hp, align);
-
-        // Agrega el monstruo al árbol
-        agregarMonstruo(monstruo);
-    }
-
-    file.close();
-    return true;
-}
-
-
 
     Monstruo<T>* getRandomMonstruo() {
-        int numeroRandom = rand() % 762 + 1;
-        return buscarMonstruo(numeroRandom);
+        int randomIndex = rand() % TABLE_SIZE;
+        Nodo* current = hashTable[randomIndex];
+
+        if (current == nullptr) return nullptr;
+
+        // Navegar hasta un elemento aleatorio en la lista enlazada
+        int count = 0;
+        while (current != nullptr) {
+            if (rand() % (++count) == 0) break;
+            current = current->next;
+        }
+        return current ? &current->monstruo : nullptr;
     }
 
-    Monstruo<T>* buscarMonstruo(int numero) {
-        int indice = 0;
-        return buscarIndex(root, indice, numero);
+    Monstruo<T>* buscarMonstruo(int cr) {
+        int index = hashFunction(cr);
+        Nodo* current = hashTable[index];
+
+        // Buscar en la lista enlazada en el índice correspondiente
+        while (current != nullptr) {
+            if (current->monstruo.getCr() == cr) {
+                return &current->monstruo;
+            }
+            current = current->next;
+        }
+        return nullptr;
     }
 
 private:
-    Monstruo<T>* root;
+    struct Nodo {
+        Monstruo<T> monstruo;
+        Nodo* next;
+    };
 
-    bool destruirArbol(Monstruo<T>* nodo) {
-        if(nodo != nullptr) {
-            destruirArbol(nodo->left);
-            destruirArbol(nodo->right);
-            delete nodo;
-        }
-        return true;
-    }
+    Nodo* hashTable[TABLE_SIZE];  // Tabla hash con manejo de colisiones por encadenamiento
 
-    Monstruo<T>* buscarIndex(Monstruo<T>* nodo, int& indice, int numero) {
-        if(nodo == nullptr) return nullptr;
-
-        Monstruo<T>* found = buscarIndex(nodo->left, indice, numero);
-        if(found != nullptr) return found;
-
-        indice++;
-        if(indice == numero) return nodo;
-
-        return buscarIndex(nodo->right, indice, numero);
+    int hashFunction(int cr) {
+        return cr % TABLE_SIZE;  // Función hash simple
     }
 };
