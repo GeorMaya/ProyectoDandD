@@ -1,30 +1,48 @@
-#pragma once
 
+#pragma once
 #include <string>
 
 template <typename T>
-class Monstruo {
+class Monstruos {
 public:
-    Monstruo() : left(nullptr), right(nullptr), cr(0), ac(0), hp(0) {}
+    Monstruos() : left(nullptr), right(nullptr), cr(0), ac(0), hp(0) {} //inicializar atributos (nums) y punteros
 
-    Monstruo(T name, double cr, T type, T size, double ac, double hp, T align)
-        : name(name), cr(cr), type(type), size(size), ac(ac), hp(hp), align(align), left(nullptr), right(nullptr) {}
+    // inicializo un objeto con valores específicos
+    Monstruos(T nombre, double cr, T tamano, T tipo, double ac, double hp, T align)
+        : nombre(nombre), cr(cr), tipo(tipo), tamano(tamano), ac(ac), hp(hp), align(align), left(nullptr), right(nullptr) {}
 
-    ~Monstruo() {}
+    //destructor
+    ~Monstruos() {}
 
-    // Métodos getter para los atributos
-    T getNombre() { return name; }
-    double getCr() { return cr; }
-    T getType() { return type; }
-    T getSize() { return size; }
-    double getAc() { return ac; }
-    double getHp() { return hp; }
-    T getAlign() { return align; }
+    //métodos para devolver cada atributo de Monstruos
+    T getNombre() {
+        return nombre;
+    }
+    T getTipo() {
+        return tipo;
+    }
+    T getTamano() {
+        return tamano;
+    }
+    T getAlign() {
+        return align;
+    }
+    double getCr() {
+        return cr;
+    }
+    double getAc() {
+        return ac;
+    }
+    double getHp() {
+        return hp;
+    }
 
-    Monstruo* left;
-    Monstruo* right;
+    //punteros
+    Monstruos* left;
+    Monstruos* right;
 
 private:
-    T name, type, size, align;  // Atributos de tipo genérico
-    double cr, ac, hp;          // Atributos específicos de tipo numérico
+    //atributos privados --encapsulamiento--
+    T nombre, tipo, tamano, align;
+    double cr, ac, hp;
 };
