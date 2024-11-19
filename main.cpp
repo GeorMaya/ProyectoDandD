@@ -1,43 +1,42 @@
 #include <iostream>
 #include <ctime>
+#include "Jugador.h"
 #include "Calabozo.h"
 #include "Catalogo.h"
-#include "Jugador.h"
-
 #define NUM_CUARTOS 20
 
 using namespace std;
 
+
 int main() {
     srand(time(0));
-    using U = string;
+    using J = string;
 
-    Catalogo<U> miCatalogo;
-    Calabozo<U> miCalabozo;
-    Jugador<U> miJugador;
+    Catalogo<J> miCatalogo;  //al usar templates y typename, le indico que es string
+    Calabozo<J> miCalabozo;
+    Jugador<J> miJugador;
 
-    if(!miCatalogo.loadCSV()) {
-        cout << "No se pudo crear el catalogo" << endl;
-        return 0;
+    if(!miCatalogo.cargarCSV()) {
+        cout << "Catalogo no creado" << endl;
+        return 0;  //mensaje de error por si no se crea el catalogo
     }
 
-    cout << "Creando Dungeon" << endl;
+    cout << "Creando Calabozo" << endl;  //cout para saber que el calabozo se creó
 
-    for(int c = 0; c < NUM_CUARTOS; c ++) {
-        Monstruo<U>* pMonster = miCatalogo.getRandomMonstruo();
+    for(int i = 0; i < NUM_CUARTOS; i++) {
+        Monstruos<J>* pMounstruo = miCatalogo.getRandomMonstruo();
 
-        if(!pMonster) {
-            cout << "No se obtuvo un monstruo" << endl;
-            return 0;
+        if(!pMounstruo) {
+            cout << "No hay monstruos" << endl;
+            return 0;         //control para revisar monstruos creados
         }
 
-        if (!miCalabozo.crearCuarto(pMonster)) {
-            cout << "No se inserto el cuarto" << endl;
-            return 0;
+        if (!miCalabozo.makeCuarto(pMounstruo)) {
+            cout << "No se creó el cuarto" << endl;
+            return 0; //control para revisar cuartos creados
         }
     }
 
-    miCalabozo.imprimeCuartos();
-
+    miCalabozo.mostrarCuartos();
     return 0;
 }
